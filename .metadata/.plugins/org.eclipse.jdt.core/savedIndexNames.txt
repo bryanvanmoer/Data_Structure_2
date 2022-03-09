@@ -1,0 +1,2 @@
+INDEX VERSION 1.131+C:\Users\Van Moer Bryan\Desktop\IPL\Cours-2021\Q2\StructureDonnees2\.metadata\.plugins\org.eclipse.jdt.core
+2090482743.index
