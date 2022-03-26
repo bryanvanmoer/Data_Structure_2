@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class Graph {
 	
@@ -111,16 +112,14 @@ public class Graph {
 		}
 		displayFlight(itineraryFlight, source, destination, 0d);
 	}
-	
+
 	//Dijkstra
 	public void calculerItineraireMiniminantDistance(String codeIATASource, String codeIATADestination) {
-		Map<Airport,Double> etiquetteProvisoireMap = new HashMap<Airport,Double>();
-		TreeMap<Airport,Double> etiquetteProvisoire = new TreeMap<Airport,Double>(new Comparator<Airport>() {
+		TreeSet<Airport> etiquetteProvisoire = new TreeSet<Airport>(new Comparator<Airport>() {
 			public int compare(Airport a1, Airport a2) {
-				if(etiquetteProvisoireMap.get(a1) == null) return 1;
-				if(etiquetteProvisoireMap.get(a2) == null) return -1;
-				  int res = etiquetteProvisoireMap.get(a1).compareTo(etiquetteProvisoireMap.get(a2));
-		          return res != 0 ? res : 1;
+				  int res = a1.getDijkstra().compareTo(a2.getDijkstra());
+		          if(res!=0) return res;
+		          return a1.getIata().compareTo(a2.getIata());
 			}
 		});
 		
@@ -129,15 +128,14 @@ public class Graph {
 		
 		Airport source = airports.get(codeIATASource);
 		Airport destination = airports.get(codeIATADestination);
-		
-		etiquetteProvisoire.put(source, 0d);
-		etiquetteProvisoireMap.put(source, 0d);
+		source.setDijkstra(0d);
+		etiquetteProvisoire.add(source);
 		
 		while(!etiquetteProvisoire.isEmpty() && !etiquetteDefinitive.containsKey(destination)) {
-			Airport current = etiquetteProvisoire.firstKey();
-			double min = etiquetteProvisoire.get(current);
+		
+			Airport current = etiquetteProvisoire.first();
+			double min = current.getDijkstra();
 			etiquetteProvisoire.remove(current);
-			etiquetteProvisoireMap.remove(current);
 			etiquetteDefinitive.put(current, min);
 			Set<Flight> flights = exitingFlights.get(current.getIata());
 			
@@ -145,9 +143,12 @@ public class Graph {
 				Airport a = f.getDestination();
 				if(!etiquetteDefinitive.containsKey(a)) {
 					double distanceAfter = f.getDistance() + min;
-					if(etiquetteProvisoire.get(a) == null || etiquetteProvisoire.get(a)>distanceAfter) {
-						etiquetteProvisoire.put(a, distanceAfter);
-						etiquetteProvisoireMap.put(a, distanceAfter);
+					if(!etiquetteProvisoire.contains(a)|| a.getDijkstra()>distanceAfter) {
+						
+						etiquetteProvisoire.remove(a);
+						a.setDijkstra(distanceAfter);
+					
+						etiquetteProvisoire.add(a);
 						itineraryFlight.put(a, f);
 					} 
 				}
@@ -161,7 +162,6 @@ public class Graph {
 	}
 	
 	private void displayFlight(Map<Airport,Flight> itineraryFlight, Airport source, Airport destination, Double distance){
-		//Affichage
 		Airport airport = destination;
 		List<Flight> listFlight = new ArrayList<Flight>();
 		double distanceTmp = 0;
@@ -171,7 +171,7 @@ public class Graph {
 			airport = flight.getSource();
 			distanceTmp += flight.getDistance();
 		}
-		
+		//Dijkstra a deja la distance dans l'etiquette definitive
 		if(distance == 0d) {
 			distance = distanceTmp;
 		}

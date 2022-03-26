@@ -6,7 +6,7 @@ public class Airport {
 	private final String country;
 	private final double longitude;
 	private final double latitude;
-	
+	private Double dijkstra = Double.MAX_VALUE;
 
 
 	public Airport(String iata, String name, String city, String country, double longitude, double latitude) {
@@ -18,8 +18,15 @@ public class Airport {
 	this.latitude = latitude;
 	}
 	
+	public void setDijkstra(double dijkstra) {
+		this.dijkstra = dijkstra;
+	}
 	
 	
+	public Double getDijkstra() {
+		return dijkstra;
+	}
+
 	public String getIata() {
 		return iata;
 	}
